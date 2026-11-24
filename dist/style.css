@@ -29,7 +29,8 @@
 .project-controls button{background:#101a28;border:1px solid var(--line);border-radius:6px;padding:7px 13px;cursor:pointer;color:var(--muted);font-size:13px}
 .project-controls button:hover{color:var(--accent)}
 .cover-facets{display:none}
-.project-band.static-view .card img{aspect-ratio:16/9}
+.project-band.static-view .card,.project-band.static-view .card img{animation:none;transition:none;transform:none}
+.project-band.static-view .card img{display:block;height:auto;aspect-ratio:16/9}
 @media(prefers-reduced-motion:no-preference){
   .project-band:not(.static-view){overflow:hidden;margin-inline:-3vw;-webkit-mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent);mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
   .project-band:not(.static-view) .project-grid{--radius:45cqw;--tile:32cqw;--sweep:157.5deg;--facet-angle:2.55deg;position:relative;display:block;container-type:inline-size;height:clamp(250px,30vw,465px);perspective:72vw;perspective-origin:center 49%}

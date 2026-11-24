@@ -22,24 +22,54 @@ const number = index => String(index + 1).padStart(2, '0');
 
 const projectGrid = document.querySelector('#project-grid');
 const projectView = document.querySelector('#project-view');
-const projectBand = projectGrid.parentElement;
+const animatedBand = projectGrid.parentElement;
 const slices = 16;
-projectGrid.innerHTML = projects.map((project, index) => {
-  const cover = imageUrl(project.start);
-  const facets = Array.from({ length: slices }, (_, slice) => `<span class="cover-facet" style="--slice:${slice};--cover:url('${cover}')"></span>`).join('');
-  return `<a class="card" href="${projectUrl(project)}" aria-label="查看详情：${project.name}" style="--order:${index}"><img src="${cover}" alt="" loading="lazy" decoding="async"><span class="cover-facets" aria-hidden="true">${facets}</span><span class="card-label"><small>${number(index)} / ${project.type}</small><b>${project.name}</b><span class="card-detail">查看详情</span></span></a>`;
-}).join('');
+function renderProjectCards(grid, animated) {
+  grid.innerHTML = projects.map((project, index) => {
+    const cover = imageUrl(project.start);
+    const media = animated
+      ? `<img src="${cover}" alt="" loading="lazy"><span class="cover-facets" aria-hidden="true">${Array.from({ length: slices }, (_, slice) => `<span class="cover-facet" style="--slice:${slice};--cover:url('${cover}')"></span>`).join('')}</span>`
+      : `<img src="${cover}" alt="" width="1920" height="1080">`;
+    const order = animated ? ` style="--order:${index}"` : '';
+    return `<a class="card" href="${projectUrl(project)}" aria-label="查看详情：${project.name}"${order}>${media}<span class="card-label"><small>${number(index)} / ${project.type}</small><b>${project.name}</b><span class="card-detail">查看详情</span></span></a>`;
+  }).join('');
+}
 
-projectView.addEventListener('click', () => {
-  const staticView = projectBand.classList.toggle('static-view');
+const staticBand = document.createElement('div');
+staticBand.className = 'project-band static-view';
+const staticGrid = document.createElement('div');
+staticGrid.className = 'project-grid';
+staticBand.appendChild(staticGrid);
+
+const projectMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const flatCases = document.documentElement.classList.contains('flat-cases');
+let activeBand = animatedBand;
+let wantsStaticProjects = false;
+
+function updateProjectView() {
+  const staticView = wantsStaticProjects || flatCases || projectMotion.matches;
+  const nextBand = staticView ? staticBand : animatedBand;
+  const nextGrid = staticView ? staticGrid : projectGrid;
+  if (!nextGrid.firstChild) renderProjectCards(nextGrid, !staticView);
+  if (activeBand !== nextBand) {
+    activeBand.firstElementChild.removeAttribute('id');
+    nextGrid.id = 'project-grid';
+    activeBand.parentNode.replaceChild(nextBand, activeBand);
+    activeBand = nextBand;
+  }
   projectView.setAttribute('aria-pressed', String(staticView));
   projectView.textContent = staticView ? '恢复流动' : '静态浏览';
-});
+}
 
-const carouselObserver = new IntersectionObserver(([entry]) => {
-  projectBand.classList.toggle('in-view', entry.isIntersecting);
+projectView.addEventListener('click', () => {
+  wantsStaticProjects = !wantsStaticProjects;
+  updateProjectView();
 });
-carouselObserver.observe(projectBand);
+window.watchPortfolioMedia(projectMotion, updateProjectView);
+new IntersectionObserver(([entry]) => {
+  animatedBand.classList.toggle('in-view', entry.isIntersecting);
+}).observe(animatedBand);
+updateProjectView();
 
 function buildCaseViewer() {
   const thumbnails = projects.map(project => `<a class="case-thumb" href="${projectUrl(project)}"><span class="case-thumb-media"><img src="${imageUrl(project.start)}" alt="" width="1920" height="1080" loading="lazy" decoding="async"></span><span class="case-thumb-title">${project.name}</span></a>`).join('');
