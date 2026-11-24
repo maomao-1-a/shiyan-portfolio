@@ -27,7 +27,7 @@ const slices = 16;
 projectGrid.innerHTML = projects.map((project, index) => {
   const cover = imageUrl(project.start);
   const facets = Array.from({ length: slices }, (_, slice) => `<span class="cover-facet" style="--slice:${slice};--cover:url('${cover}')"></span>`).join('');
-  return `<a class="card" href="${projectUrl(project)}" aria-label="${project.name}" style="--order:${index}"><img src="${cover}" alt="" loading="lazy" decoding="async"><span class="cover-facets" aria-hidden="true">${facets}</span><span class="card-label"><small>${number(index)} / ${project.type}</small><b>${project.name}</b><span aria-hidden="true">↗</span></span></a>`;
+  return `<a class="card" href="${projectUrl(project)}" aria-label="查看详情：${project.name}" style="--order:${index}"><img src="${cover}" alt="" loading="lazy" decoding="async"><span class="cover-facets" aria-hidden="true">${facets}</span><span class="card-label"><small>${number(index)} / ${project.type}</small><b>${project.name}</b><span class="card-detail">查看详情</span></span></a>`;
 }).join('');
 
 projectView.addEventListener('click', () => {
@@ -50,7 +50,7 @@ function buildCaseViewer() {
     }).join('');
     return `<article class="case-project" aria-label="${project.name}">${images}</article>`;
   }).join('');
-  detail.innerHTML = `<div class="case-toolbar"><a class="detail-back" href="#projects">← 返回项目目录</a></div><div class="case-layout"><nav class="case-index" aria-label="项目封面索引">${thumbnails}</nav><div class="case-viewer" role="region" aria-label="作品图片" tabindex="0">${sections}</div></div>`;
+  detail.innerHTML = `<div class="case-toolbar"><a class="detail-back" href="#projects"><span aria-hidden="true">←</span> <span class="detail-back-label">返回项目目录</span></a></div><div class="case-layout"><nav class="case-index" aria-label="项目封面索引">${thumbnails}</nav><div class="case-viewer" role="region" aria-label="作品图片" tabindex="0">${sections}</div></div>`;
 
   const viewer = detail.querySelector('.case-viewer');
   const index = detail.querySelector('.case-index');
@@ -176,13 +176,10 @@ career.addEventListener('keydown', event => {
 const statementLines = [...statementCopy.querySelectorAll('.statement-line')];
 statementCopy.setAttribute('aria-label', statementLines.map(line => line.textContent).join(' '));
 const characters = [];
-for (const line of statementLines) {
-  const content = line.textContent;
-  line.replaceChildren();
-  line.setAttribute('aria-hidden', 'true');
-  for (const token of content.match(/[A-Za-z0-9/]+|[^A-Za-z0-9/]/gu)) {
+function revealStatementText(content, container) {
+  for (const token of content.match(/[A-Za-z0-9/]+|[^A-Za-z0-9/]/gu) || []) {
     if (/^\s$/u.test(token)) {
-      line.append(token);
+      container.append(token);
       continue;
     }
     const word = document.createElement('span');
@@ -194,7 +191,21 @@ for (const line of statementLines) {
       word.append(glyph);
       characters.push(glyph);
     }
-    line.append(word);
+    container.append(word);
+  }
+}
+for (const line of statementLines) {
+  const fragments = [...line.childNodes];
+  line.replaceChildren();
+  line.setAttribute('aria-hidden', 'true');
+  for (const fragment of fragments) {
+    if (fragment.nodeType === Node.ELEMENT_NODE) {
+      const highlight = fragment.cloneNode(false);
+      revealStatementText(fragment.textContent, highlight);
+      line.append(highlight);
+    } else {
+      revealStatementText(fragment.textContent, line);
+    }
   }
 }
 statement.classList.add('enhanced');
