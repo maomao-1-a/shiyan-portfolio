@@ -44,6 +44,30 @@
     document.addEventListener('visibilitychange', sync);
   }
 
+  document.querySelectorAll('.title-sparkles canvas').forEach(canvas => {
+    mount(canvas, (context, width, height) => {
+      const particles = Array.from({ length: Math.round(width / 2.5) }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: .35 + Math.random() * .65,
+        phase: Math.random() * cycle,
+        speed: 1 + Math.random() * 3,
+      }));
+      return time => {
+        context.clearRect(0, 0, width, height);
+        context.fillStyle = '#fff';
+        for (const particle of particles) {
+          const fade = Math.max(0, 1 - Math.hypot(2 * particle.x / width - 1, particle.y / height));
+          context.globalAlpha = fade * (.2 + .8 * (.5 + .5 * Math.sin(time * particle.speed + particle.phase)));
+          context.beginPath();
+          context.arc(particle.x, particle.y, particle.radius, 0, cycle);
+          context.fill();
+        }
+        context.globalAlpha = 1;
+      };
+    }, 30);
+  });
+
   mount(document.querySelector('.hero-pixel-stars'), (context, width, height) => {
     const size = width < 600 ? 5 : 6;
     const colors = ['#FFFFFF', '#95caff', '#aaaaff', '#ccadff', '#aaffff'];

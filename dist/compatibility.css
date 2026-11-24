@@ -34,8 +34,6 @@
 @supports not (color:color-mix(in srgb,black,white)){
   :root{--muted:#b3b3b3;--line:#ffffff29}
   .top{background:linear-gradient(#000d,transparent)}
-  .ability-icon::before{background:var(--icon-ink)}
-  .ability-icon::after{background:#151f3a;border-color:var(--icon-ink)}
   .hero .portrait-loader circle{fill:#357099}
   .hero .portrait-loader circle.on{fill:#76d9ff}
 }
@@ -52,7 +50,7 @@
   .screen.design-gallery{--gallery-tile:min(clamp(160px,38vw,420px),max(96px,calc((100vh - var(--head) - 98px) * .72)))}
   .capability-wave{height:min(38vh,360px)}
   .capability-slabs{max-height:65vh}
-  .career-hands{translate:0 100px}
+  .career-hands{translate:0 180px}
   .career-content>.section-title{translate:0 -40px}
 }
 
@@ -75,6 +73,7 @@
   .hero .portrait-loader{transform:translate(-50%,-50%)}
   .scroll-arrow{transform:translateX(-50%)}
   .career-arrow{transform:translateY(-50%)}
+  .career-hands{transform:translateY(180px)}
   .contact-ring,.contact-particle-globe{transform:translate(-50%,50%)}
   .contact-orbit span{transform:translate(-50%,-50%)}
   @media(max-width:580px){.hero .hero-content{transform:translateX(-50%)}}
